@@ -1,0 +1,25 @@
+{
+	"manifest_version": 2,
+	"name": "chromesthree",
+	"version":"0.1",
+	"browser_action":{
+	},
+
+	"description": "allows users  to browse Amazon S3 through Chrome extension",
+
+	"background":{
+		"scripts":["background.js"],
+		"persistent":false
+	},
+
+	"permissions":[
+		"tabs"
+		],
+
+	"content_scripts": [
+    {
+      "js": ["jquery.js"]
+    }
+  ],
+
+}
