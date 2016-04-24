@@ -18,8 +18,9 @@
 
 	"content_scripts": [
     {
-      "js": ["jquery.js"]
+			"matches": ["<all_urls>"],
+      "js": ["resources/jquery.js"]
     }
-  ],
+  ]
 
 }
