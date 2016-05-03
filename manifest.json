@@ -8,7 +8,7 @@
 	"description": "allows users  to browse Amazon S3 through Chrome extension",
 
 	"background":{
-		"scripts":["background.js"],
+		"scripts":["background.js","main.js"],
 		"persistent":false
 	},
 
@@ -19,7 +19,7 @@
 	"content_scripts": [
     {
 			"matches": ["<all_urls>"],
-      "js": ["resources/jquery.js"]
+      "js": ["resources/jquery.js","resources/aws-sdk-2.3.7.min.js"]
     }
   ]
 
