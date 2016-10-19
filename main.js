@@ -1,4 +1,5 @@
 $(document).ready(function(){
+ $('form').submit(false); 
   var s3;//available in higher namespace
 
   /*Handler functions*/
@@ -37,7 +38,17 @@ $(document).ready(function(){
       else{
         myData = data; //DEBUG
         console.log(data);
-        data.Buckets.forEach(function(x){$("div.main").append("<div class=\"bucket\" id=\"" + x.Name + "\">" + x.Name + "</div>");});
+        var tableBody = $("#files > tbody");
+        tableBody.html();
+        data.Buckets.forEach(loadTable = function(x){
+          addedRow = $('<tr/>');
+          addedCol = $('<td/>');
+          addedCol.text(x.Name);
+          addedCol.attr('class','bucket');
+          addedCol.attr('id',x.Name);
+          addedRow.append(addedCol);
+          tableBody.append(addedRow);
+        });
         $(".bucket").click(expandBucket);
       }
     });
@@ -45,8 +56,14 @@ $(document).ready(function(){
 
   expandBucket = function(){
     if (s3){
-      console.log("bucket pressed, s3");
-      console.log($(this).attr("id"));
+      bucketId = $(this).attr("id");
+      s3.listObjects({Bucket: bucketId}, getObjects = function(err,data){
+        if (err){
+          console.log(err);
+        } else {
+          console.log(data);
+        }
+      });
     } else {
       console.log("bucket pressed, no s3");
       //should not happen
