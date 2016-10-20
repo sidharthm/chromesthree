@@ -11,15 +11,15 @@ $(document).ready(function(){
       s3.listBuckets(function(err, data) {
         if (err){
           console.log(err, err.stack); // an error occurred
-          printMessage("span#credential-message",err,"error");
+          printMessage("div#credential-message",err,"alert-error");
         }
         else{
-          printMessage("span#credential-message",'Authentication Success',"success"); // successful response
+          printMessage("div#credential-message",'Authentication Success',"alert-success"); // successful response
           loadStructure(s3);
         }
       });
     } else {
-      printMessage("span#credential-message",'Please Provide Credentials',"error");
+      printMessage("div#credential-message",'Please Provide Credentials',"alert-info");
     }
   });
 
@@ -28,13 +28,17 @@ $(document).ready(function(){
     msgElement = $(element);
     if (msgElement){
       msgElement.text(message);
-      if (classToAdd) msgElement.addClass(classToAdd);
+      if (classToAdd) {
+        // not a great idea, removes all classes
+        msgElement.removeClass();
+        msgElement.addClass(classToAdd);
+      }
     }
   }
 
   loadStructure = function(objS3){
     objS3.listBuckets(function(err,data){
-      if (err) printMessage("span#main-message",err,"error")
+      if (err) printMessage("div#credential-message",err,"alert-error")
       else{
         myData = data; //DEBUG
         console.log(data);
@@ -42,11 +46,11 @@ $(document).ready(function(){
         tableBody.html();
         data.Buckets.forEach(loadTable = function(x){
           addedRow = $('<tr/>');
-          addedCol = $('<td/>');
-          addedCol.text(x.Name);
-          addedCol.attr('class','bucket');
-          addedCol.attr('id',x.Name);
-          addedRow.append(addedCol);
+          [x.Name, x.CreationDate].forEach(function(val){
+            addColumnToRow(addedRow, val);
+          });
+          addedRow.attr('class','bucket');
+          addedRow.attr('id',x.Name);
           tableBody.append(addedRow);
         });
         $(".bucket").click(expandBucket);
@@ -70,3 +74,11 @@ $(document).ready(function(){
     } 
   }
 });
+
+//Utility functions
+
+addColumnToRow = function(row, value){
+  newCol = $('<td/>');
+  newCol.text(value);
+  row.append(newCol);
+}

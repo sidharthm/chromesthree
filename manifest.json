@@ -20,7 +20,7 @@
     {
 			"matches": ["<all_urls>"],
       "js": ["resources/jquery.js","resources/aws-sdk-2.3.7.min.js"],
-      "css": ["resources/bootstrap.min.css"]
+      "css": ["resources/bootstrap.min.css","resources/main.css"]
     }
   ]
 

@@ -3,41 +3,45 @@
 <script src="resources/jquery.js"></script>
 <script src="resources/aws-sdk-2.3.7.min.js"></script>
 <link rel="stylesheet" href="resources/bootstrap.min.css">
+<link rel="stylesheet" href="resources/main.css">
 <script src="main.js"></script>
 </head>
   <body>
     <div class="container">
       <nav class="navbar navbar-default">
-        <ul class="nav navbar-nav">
-          <li>
-            <form class="form-inline">
-              <div class="form-group">
-                <label for="access">Access</label>
-                <input type="text" id="access" class="form-control"></input>
-              </div>
-              <div class="form-group">
-                <label for="secret">Secret</label>
-                <input type="text" id="secret" class="form-control"></input>
-              </div>
-              <button id="try" class="btn btn-primary">Authenticate</button>
-            </form>
-          </li>
-          <span id="credential-message"></span>
-        </ul>
+        <div class="container-fluid">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="access">Access</label>
+                  <input type="text" id="access" class="form-control"></input>
+                </div>
+                <div class="form-group">
+                  <label for="secret">Secret</label>
+                  <input type="text" id="secret" class="form-control"></input>
+                </div>
+                <button id="try" class="btn btn-primary">Authenticate</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <div id="credential-message" class="alert-info"></div>
       </nav>
       <div class="container-fluid main">
-        <span id="main-message"></span>
-        <div class="col-md-8" id="browser">
+        <div class="panel panel-default">
+          <div class="panel-heading"> Path: </div>
+        </div>
+        <div class="col-md-12" id="browser">
           <table class="table" id="files">
             <thead>
-              <tr>
-                <th> File </th>
+              <tr id="header-row">
+                <th class="col-md-8"> Bucket </th>
+                <th class="col-md-4"> Created At </th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
-        </div>
-        <div class="col-md-4" id="details">
         </div>
       </div>
   </div>
