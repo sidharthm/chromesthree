@@ -1,6 +1,48 @@
 $(document).ready(function(){
- $('form').submit(false); 
+  $('form').submit(false); 
   var s3;//available in higher namespace
+  var currentPath = '';
+  var localS3Map = {};
+  var customDisplayDict = {
+    '': {
+      dataKey: 'Buckets',
+      headers: ["Bucket","Created At"],
+      dataFields: ["Name","CreationDate"]
+    }
+  };
+  var defaultDisplayDict = {
+    dataKey: 'Contents',
+    headers: ["Name","Size","Storage Type","Modified At"],
+    dataFields: ["Key","Size","StorageClass","LastModified"]
+  }
+
+
+  loadStructure = function(objS3, currPath, localData){
+      var data = localData[currPath];
+      var displayDict = (customDisplayDict[currPath]) ? customDisplayDict[currPath] : defaultDisplayDict;
+      var tableHeaders = $('#files > thead');
+      tableHeaders.html('');
+      var headerRow = $('<tr/>');
+      displayDict.headers.forEach(loadTableHeaders = function(header){
+        addedHeader = $('<th/>');
+        addedHeader.text(header);
+        headerRow.append(addedHeader);
+      });
+      tableHeaders.append(headerRow);
+      var tableBody = $("#files > tbody");
+      tableBody.html('');
+      data[displayDict.dataKey].forEach(loadTable = function(x){
+        addedRow = $('<tr/>');
+        displayDict.dataFields.forEach(function(key){
+          addColumnToRow(addedRow, x[key]);
+        });
+        addedRow.attr('class','bucket');
+        addedRow.attr('id',x.Name);
+        tableBody.append(addedRow);
+      });
+      $(".bucket").click(expandBucket);
+      $("#path-display").text(currentPath);
+  }
 
   /*Handler functions*/
   $("#try").click(function(){
@@ -15,7 +57,8 @@ $(document).ready(function(){
         }
         else{
           printMessage("div#credential-message",'Authentication Success',"alert-success"); // successful response
-          loadStructure(s3);
+          localS3Map[currentPath] = data;
+          loadStructure(s3, currentPath, localS3Map);
         }
       });
     } else {
@@ -23,49 +66,16 @@ $(document).ready(function(){
     }
   });
 
-  /*Utility functions*/
-  printMessage = function(element,message,classToAdd){
-    msgElement = $(element);
-    if (msgElement){
-      msgElement.text(message);
-      if (classToAdd) {
-        // not a great idea, removes all classes
-        msgElement.removeClass();
-        msgElement.addClass(classToAdd);
-      }
-    }
-  }
-
-  loadStructure = function(objS3){
-    objS3.listBuckets(function(err,data){
-      if (err) printMessage("div#credential-message",err,"alert-error")
-      else{
-        myData = data; //DEBUG
-        console.log(data);
-        var tableBody = $("#files > tbody");
-        tableBody.html();
-        data.Buckets.forEach(loadTable = function(x){
-          addedRow = $('<tr/>');
-          [x.Name, x.CreationDate].forEach(function(val){
-            addColumnToRow(addedRow, val);
-          });
-          addedRow.attr('class','bucket');
-          addedRow.attr('id',x.Name);
-          tableBody.append(addedRow);
-        });
-        $(".bucket").click(expandBucket);
-      }
-    });
-  }
-
   expandBucket = function(){
     if (s3){
-      bucketId = $(this).attr("id");
-      s3.listObjects({Bucket: bucketId}, getObjects = function(err,data){
+      currentPath = currentPath + $(this).attr("id");
+      pathDetails = extractBucketAndPrefixFromPath(currentPath);
+      s3.listObjects({Bucket: pathDetails.bucket, Prefix: pathDetails.prefix}, getObjects = function(err,data){
         if (err){
           console.log(err);
         } else {
-          console.log(data);
+          localS3Map[currentPath] = data;
+          loadStructure(s3, currentPath, localS3Map);
         }
       });
     } else {
@@ -75,10 +85,30 @@ $(document).ready(function(){
   }
 });
 
-//Utility functions
+/*Utility functions*/
+printMessage = function(element,message,classToAdd){
+  msgElement = $(element);
+  if (msgElement){
+    msgElement.text(message);
+    if (classToAdd) {
+      // not a great idea, removes all classes
+      msgElement.removeClass();
+      msgElement.addClass(classToAdd);
+    }
+  }
+}
 
 addColumnToRow = function(row, value){
   newCol = $('<td/>');
   newCol.text(value);
   row.append(newCol);
+}
+
+extractBucketAndPrefixFromPath = function(path){
+  var splitPath = path.split('/');
+  var bucket = splitPath.shift();
+  var prefix = splitPath.join('/');
+  console.log('bucket', bucket);
+  console.log('prefix?', prefix);
+  return {bucket: bucket, prefix: prefix};
 }
